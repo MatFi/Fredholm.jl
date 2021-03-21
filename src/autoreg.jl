@@ -65,7 +65,6 @@ function gradient_decent(f;ini=1e-5,d_ini=ini,maxiters=40)
     α_old =ini
     α_cur =ini+1
     α_new =ini+1
-    @show ini
     dual=ForwardDiff.Dual{:c}(α_old,one(1.))
     kevel= k(dual)
     Δ_old = kevel.partials[1]
@@ -98,8 +97,6 @@ function gradient_decent(f;ini=1e-5,d_ini=ini,maxiters=40)
         #α_new=clamp(α_cur-Δ_cur,α_cur-α0,α_cur+α0)
         α_old=α_cur
         Δ_old=Δ_cur
-    
-     @show α_opt , α_cur , k_best , k_cur, Δ_cur, γ
         i>1 &&γ<0.01 && abs(Δ_cur)<0.01 &&break
     end
 
