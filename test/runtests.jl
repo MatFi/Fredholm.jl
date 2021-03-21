@@ -1,6 +1,6 @@
 using Fredholm
 using Test
+using QuadGK, Random
+using LinearAlgebra: norm
 
-@testset "Fredholm.jl" begin
-    # Write your tests here.
-end
+include("fredholm.jl")
