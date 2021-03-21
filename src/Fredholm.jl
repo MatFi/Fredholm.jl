@@ -1,5 +1,14 @@
 module Fredholm
+    using LinearAlgebra: I, ⋅, norm, Diagonal, mul!
 
-# Write your package code here.
+    using NNLS
+    using ForwardDiff
+    abstract type AutoRegMethod end
+    abstract type AbstractRegularization{T} end  
 
-end
+    include("regularizations.jl")
+    include("autoreg.jl")
+    include("solve.jl")
+    
+    export invert, XuPei,LCurve,Tikhonov,SecondDerivative
+end # module
