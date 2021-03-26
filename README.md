@@ -5,7 +5,7 @@
  As an example, consider input data of the following form
 
  ```julia
-using Fredholm, QuadGK, NumericalIntegration, Random
+using Fredholm, QuadGK, Random
 Random.seed!(1234);
 
 F(t) = exp(-(t - 2)^2 / (2 * 0.3^2)) + exp(-(t - 3)^2 / (2 * 0.3^2))
