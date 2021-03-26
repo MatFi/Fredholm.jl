@@ -1,8 +1,8 @@
 module Fredholm
     using LinearAlgebra: I, ⋅, norm, Diagonal, mul!
 
-    using NNLS
     using ForwardDiff
+    using NonNegLeastSquares
     abstract type AutoRegMethod end
     abstract type AbstractRegularization{T} end  
 

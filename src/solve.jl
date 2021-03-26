@@ -29,16 +29,14 @@ function invert(s,y,t,k::Function,reg;yoffset=true,kwargs...)
 
 end
 
-function get_s(AR,yr;tdomain=:realplus,problem=NNLSWorkspace(AR, yr))
+function get_s(AR,yr;tdomain=:realplus)
 
     if tdomain ==:real
         sy = (AR \ yr)
         return  sy
     end
-
-    solve!(problem)
-    sy= problem.x
-    return sy
+    return nonneg_lsq(AR,yr;alg=:pivot) 
+ 
 end
 
 
