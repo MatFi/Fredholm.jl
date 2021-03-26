@@ -5,13 +5,12 @@ end
 function invert(t,y,s,kernel::Function,aamethod::AutoRegMethod;kwargs...)
     reg = auto_reg(t,y,s,kernel::Function,aamethod;kwargs...)
     invert(t,y,s,kernel,reg;kwargs...)
-
 end
 
 """
     invert(s,y,t,k::Function,reg;yoffset=true,tdomain=:realplus)
 
-Compute the discretized form a(t) in y(s) = ∫a(t)k(t,s)dt. `s` and `y` represents 
+Compute the discretized form a(s) in y(t) = ∫a(s)k(t,s)ds. `s` and `y` represents 
 the data wich we want to invert on discrete points `t`. 
 
 # Examples
@@ -23,13 +22,13 @@ julia> bar([1, 2], [1, 2])
 
 function invert(s,y,t,k::Function,reg;yoffset=true,kwargs...)
     AR,yr = build_ar(s,y,t,k,reg,yoffset)
-    yt=get_s(AR,yr;kwargs...)
+    yt=get_yt(AR,yr;kwargs...)
 
-    return (t,yt)
+    return (t,yt,s,AR*yt)
 
 end
 
-function get_s(AR,yr;tdomain=:realplus)
+function get_yt(AR,yr;tdomain=:realplus)
 
     if tdomain ==:real
         sy = (AR \ yr)

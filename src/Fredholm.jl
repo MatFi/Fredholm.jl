@@ -11,4 +11,4 @@ module Fredholm
     include("solve.jl")
     
     export invert, XuPei,LCurve,Tikhonov,SecondDerivative
-end # module
+end 

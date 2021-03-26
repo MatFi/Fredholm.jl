@@ -20,7 +20,7 @@ function auto_reg(t,y,s,kernel::Function,method::LCurve;yoffset=true,tdomain=:re
         AR,yr = build_ar(t,y,s,kernel,reg,yoffset)
         #TODO: could reduce allocs , problem with forward diff
         # p=load!(o.problem, AR,yr)  
-        sy = get_s(AR,yr;tdomain=tdomain)
+        sy = get_yt(AR,yr;tdomain=tdomain)
         tmp = AR*sy
     
         lres = tmp[1:length(y)].-y .|>abs2  |>sum |>sqrt
@@ -129,7 +129,7 @@ function auto_reg(t,y,s,kernel,method::XuPei;yoffset=true,tdomain=:realplus)
     for i in 1:100
         reg=creg(Λ)
         AR,yr = build_ar(t,y,s,kernel,reg,yoffset)
-        sy= get_s(AR,yr;tdomain=:real)
+        sy= get_yt(AR,yr;tdomain=:real)
         sy[sy[1:end].<0][1:end-1].=0
         res_new= norm((AR*sy)[1:length(y)]-y)
         reg_new = norm((AR*sy)[length(y)+1:end-1])
