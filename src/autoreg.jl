@@ -7,44 +7,34 @@ function auto_reg(t,y,s,kernel::Function,method::LCurve;yoffset=true,tdomain=:re
     creg = typeof(method.reg).name.wrapper
   
     if method.reg isa UnionAll
-        α_ini = 1e-8
+        λ_ini = 1
         creg = method.reg
     else
-        α_ini = method.reg.α
+        λ_ini = method.reg.α
         creg = typeof(method.reg).name.wrapper
     end
 
-    function obj(α)
-        reg=creg(α)
+    function obj(λ)
+        reg=creg(λ)
         
         AR,yr = build_ar(t,y,s,kernel,reg,yoffset)
         #TODO: could reduce allocs , problem with forward diff
         # p=load!(o.problem, AR,yr)  
         sy = get_yt(AR,yr;tdomain=tdomain)
-        tmp = AR*sy
-    
-        lres = tmp[1:length(y)].-y .|>abs2  |>sum |>sqrt
-        lres=lres/length(y)
-        lreg =  sy[1:end-1] .|>abs2 |>sum |>sqrt#
-        lreg= lreg/(length(sy)-1)
-      
-        r=π/4*0
-        R=  [cos(r) -sin(r)
-            sin(r) cos(r)]
-        r= R*[lres ,lreg]#.|>log
-        return r
+        ρ = (AR*sy)[1:length(y)].-y |>norm
+        η =  sy[1:end-1] |> norm
+        return (ρ ,η)
     end       
     #calculate curvatur
-    function k(α)
-    
-        dd=ForwardDiff.Dual{:a}(ForwardDiff.Dual{:b}(α,one(1.)),one(1.))
-        o=obj(dd) .|>log
-        x1= o[1].partials[1].value #first dirivative
-        y1=  o[2].partials[1].value #first dirivative
-        x2=  o[1].partials[1].partials[1] #second dirivative
-        y2=  o[2].partials[1].partials[1] #second dirivative 
-        c=((x1*y2-y1*x2)/(x1^2+y1^2)^(3/2)) #curvature
-
+    function k(λ)
+        dd=ForwardDiff.Dual{:a}(λ,one(1.))
+        o=obj(dd)
+        η =  o[2].value
+        ρ =  o[1].value
+        dη = o[2].partials[1]
+        c= -2*η*ρ/dη*(λ^2*dη*ρ + 2*λ*η*ρ + λ^4*η*dη)/((λ^2*η^2+ ρ^2)^3/2 )
+        @debug "L-curvature" κ=c λ=λ  
+       # return c
         #supress negative curvatures
         if c<0 
             c=exp(c)
@@ -55,9 +45,11 @@ function auto_reg(t,y,s,kernel::Function,method::LCurve;yoffset=true,tdomain=:re
         return c
     end
 
+   # return k(λ_ini)
     #optimize on log scales
-    α_opt = 10. ^gradient_decent(x ->log(1/k(10.0 ^x)),ini=log10(α_ini),d_ini=log10(α_ini))
-    return creg(α_opt)
+    λ_opt = 10. ^gradient_decent(x ->log(1/k(10.0 ^x)),ini=log10(λ_ini),d_ini=log10(λ_ini))
+    @debug "found λ" λ=λ_opt
+    return creg( λ_opt)
 end
 
 function gradient_decent(f;ini=1e-5,d_ini=ini,maxiters=40)
@@ -89,10 +81,8 @@ function gradient_decent(f;ini=1e-5,d_ini=ini,maxiters=40)
             k_best=k_cur
             α_opt=α_cur
         end
-        
         γ=(abs(α_old-α_cur)*abs(Δ_cur-Δ_old))/((Δ_cur-Δ_old)^2+eps(Float64))#+1e-4
-
-        α0=0.5
+        α0=1
         α_new= clamp(α_cur-γ*Δ_cur,α_cur-α0,α_cur+α0)
         #α_new=clamp(α_cur-Δ_cur,α_cur-α0,α_cur+α0)
         α_old=α_cur
