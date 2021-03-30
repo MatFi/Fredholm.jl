@@ -23,8 +23,8 @@ julia> bar([1, 2], [1, 2])
 function invert(s,y,t,k::Function,reg;yoffset=true,kwargs...)
     AR,yr = build_ar(s,y,t,k,reg,yoffset)
     yt=get_yt(AR,yr;kwargs...)
-
-    return (t,yt,s,AR*yt)
+    reshape
+    return (t,yt[1:length(t),1],s,(AR*yt)[1:length(s),1])
 
 end
 
@@ -34,7 +34,7 @@ function get_yt(AR,yr;tdomain=:realplus)
         sy = (AR \ yr)
         return  sy
     end
-    return nonneg_lsq(AR,yr;alg=:pivot) 
+    return nonneg_lsq(AR,yr;alg=:fnnls) 
  
 end
 
