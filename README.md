@@ -17,9 +17,9 @@ noise = (randn(length(ys))) * 0.001
 
 ti = 0:0.01:5|> collect #define the t-domain for the solution
 α = 1.2e-4
-t, yt = invert(s, ys .+ noise, ti, (t, s) -> exp(-t * s), Tikhonov(α))
+t, yt, ss, yss= invert(s, ys .+ noise, ti, (t, s) -> exp(-t * s), Tikhonov(α))
 ```
-The solution `yt` at discrete `t` will very much depend on the choice of the regularization parameter `α`. If more noise is present in the data a higher `α` should be picked and vice versa. 
+The solution `yt` at discrete `t` will very much depend on the choice of the regularization parameter `α`. If more noise is present in the data a higher `α` should be picked and vice versa. The variables `ss` and `yss` contain the regularized from of `s` and `ys`, where `ss[end]` contians the `y-offset`. If `invert` is called with the keyword `yoffset=false` `ss` and `s` will be equal. 
 
 ![example](example.png)
 
