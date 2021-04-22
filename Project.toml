@@ -9,7 +9,7 @@ NonNegLeastSquares = "b7351bd1-99d9-5c5d-8786-f205a815c4d7"
 
 [compat]
 ForwardDiff = "0.5, 0.6, 0.7, 0.8, 0.9, 0.10"
-NonNegLeastSquares = "0.2, 0.3"
+NonNegLeastSquares = "0.2, 0.3, 0.4"
 julia = "1"
 
 [extras]
